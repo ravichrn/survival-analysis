@@ -1,0 +1,54 @@
+libname q1 'h:\Datasets';
+
+data cc;set q1.cc11;run;
+
+proc means NMISS N; run;
+
+/*Standardizing the variables*/
+data cc1;set cc;
+if dur=. then dur = 0;
+profit = totfc + (tottrans * 0.016);
+if profit = 0 then active=0; else active=1;
+age_s = age/100;
+limit_s = limit/1000;
+tottrans_s = tottrans/1000;
+profit_s = profit/1000;
+run;
+
+
+/*1*//*TOBIT Model*/
+proc qlim data=cc1;
+model profit_s = age_s tottrans_s rewards limit_s numcard dm ds ts gold platinum quantum sectorb sectorc sectord sectore sectorf;
+endogenous profit_s~censored(lb = 0);run;
+
+/*2*//*Selection Model*/
+proc qlim data=cc1; 
+nloptions maxiter=500;
+Model active = age_s rewards limit_s numcard ds ts net gold platinum quantum SectorB SectorC SectorD SectorE SectorF /discrete;
+Model profit_s = age_s tottrans_s rewards limit_s numcard ds ts net gold platinum quantum SectorB SectorC SectorD SectorE SectorF /select(active=1);
+run;
+
+/* Survival Analysis*/
+data cc2; set cc1;
+if active=1;
+if dur=37 then status =0;else status=1;
+run;
+
+/*3*/
+proc phreg data=cc2;
+model dur*status(0) = age_s tottrans_s rewards limit_s numcard dm ds ts gold platinum quantum sectorb sectorc sectord sectore sectorf;
+run;
+
+/*4*/
+proc lifereg data=cc2 outest=a3;
+model dur*status(0)= age_s tottrans_s rewards limit_s numcard dm ds ts gold platinum quantum sectorb sectorc sectord sectore sectorf/dist=weibull;
+output out=b3 xbeta=wb;
+run;
+
+/*5*/
+proc lifetest data=cc2 plots=(s) graphics outsurv=a;
+time dur*status(0);
+strata SectorA;
+symbol1 v=none color=black line=1;
+symbol2 v=none color=black line=2;
+run;
