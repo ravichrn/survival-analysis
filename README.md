@@ -33,5 +33,5 @@ Types of Affinity cards	sectorA	No affinity – card is not associated with affi
 	SectorB	Affinity card affiliated with Professional organization (e.g. Am. Medical. Assoc) if a customer has an affinity card of this type value =1 else 0.
 	SectorC	Affinity card affiliated with Sports
 	SectorD	Affinity card affiliated with Financial institution
-	SectorE	Affinity card affiliated with University (e.g. UTD card)
+	SectorE	Affinity card affiliated with University
 	SectorF	Affinity card affiliated with Commercial (e.g. Macy’s card)
